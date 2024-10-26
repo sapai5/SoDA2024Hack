@@ -1,116 +1,182 @@
 import React, { useState, useEffect } from 'react';
-import Button from './components/ui/button';
-import MessageModal from './components/MessageModal';
-import Card from './components/ui/card';
-import Profile from './Profile';
-import { db } from './components/firebaseConfig';
-import { collection, doc, setDoc, getDocs, query, where } from 'firebase/firestore';
-import { User, MessageSquare } from 'lucide-react';
+import { User, MessageSquare, X, Check } from 'lucide-react';
+import './App.css';
 
-const profiles = [
-    { id: 1, name: "Alex Kim", university: "Stanford University", subjects: ["CS", "Math", "AI"], courses: ["CS224N", "CS229"], studyStyle: "Group discussions", availability: "Evenings" },
-    { id: 2, name: "Sarah Chen", university: "MIT", subjects: ["Physics", "Engineering"], courses: ["6.001", "8.01"], studyStyle: "Problem-solving", availability: "Mornings" },
-    { id: 3, name: "Michael Lee", university: "Harvard", subjects: ["Economics"], courses: ["ECON101"], studyStyle: "Solo sessions", availability: "Weekends" },
+// Sample profile data
+const sampleProfiles = [
+    {
+        id: 1,
+        name: "Alex Johnson",
+        university: "Stanford University",
+        major: "Computer Science",
+        interests: ["Machine Learning", "Web Development", "Algorithms"],
+        bio: "Looking for study partners in advanced algorithms and ML projects."
+    },
+    {
+        id: 2,
+        name: "Sarah Chen",
+        university: "MIT",
+        major: "Physics",
+        interests: ["Quantum Mechanics", "Mathematics", "Programming"],
+        bio: "Passionate about quantum computing and theoretical physics."
+    },
+    {
+        id: 3,
+        name: "Michael Brown",
+        university: "Berkeley",
+        major: "Data Science",
+        interests: ["Big Data", "Statistics", "Python"],
+        bio: "Seeking collaborators for data science projects and study groups."
+    }
 ];
 
 const StudyApp = () => {
+    const [profiles, setProfiles] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [matches, setMatches] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedConversation, setSelectedConversation] = useState(null);
+    const [currentProfile, setCurrentProfile] = useState(null);
 
     useEffect(() => {
-        console.log(`Displaying profile index: ${currentIndex}`, profiles[currentIndex]);
-    }, [currentIndex]);
+        setProfiles(sampleProfiles);
+    }, []);
 
-    const startConversationWithMatch = async (match) => {
-        const q = query(collection(db, 'conversations'), where('participants', 'array-contains', match.id));
-        const existingConversations = await getDocs(q);
-
-        let conversationId;
-        if (!existingConversations.empty) {
-            conversationId = existingConversations.docs[0].id;
+    useEffect(() => {
+        if (profiles.length > 0 && currentIndex < profiles.length) {
+            setCurrentProfile(profiles[currentIndex]);
         } else {
-            const newConversationRef = doc(collection(db, 'conversations'));
-            await setDoc(newConversationRef, {
-                participants: [match.id, 'currentUser'],
-                name: match.name,
-                lastMessage: '',
-                timestamp: null,
-            });
-            conversationId = newConversationRef.id;
+            setCurrentProfile(null);
         }
-        setSelectedConversation({ id: conversationId, ...match });
-        setIsModalOpen(true);
-    };
+    }, [profiles, currentIndex]);
 
     const handleSwipe = (direction) => {
-        console.log(`Swiped ${direction} on ${profiles[currentIndex].name}`);
-        if (direction === 'right') {
-            setMatches((prev) => [...prev, profiles[currentIndex]]);
+        if (currentIndex >= profiles.length) return;
+
+        if (direction === 'right' && currentProfile) {
+            setMatches(prev => [...prev, currentProfile]);
         }
-        setCurrentIndex((prevIndex) => {
-            const newIndex = prevIndex + 1;
-            return newIndex < profiles.length ? newIndex : prevIndex; // Stop incrementing if no profiles left
-        });
+
+        setCurrentIndex(prevIndex => prevIndex + 1);
     };
 
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
     };
 
-    return (
-        <div className="min-h-screen bg-gray-50">
-            <header className="bg-white shadow-sm p-4">
-                <div className="max-w-7xl mx-auto flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-blue-600">StudyMatch</h1>
-                    <Button variant="outline" className="flex items-center gap-2" onClick={toggleModal}>
-                        <MessageSquare className="h-4 w-4" />
-                        Messages
-                    </Button>
+    // Profile Card Component
+    const ProfileCard = ({ profile }) => (
+        <div className="profile-enter bg-white rounded-lg shadow-lg p-6">
+            <div className="mb-4">
+                <div className="w-20 h-20 bg-blue-100 rounded-full mx-auto flex items-center justify-center">
+                    <User size={40} className="text-blue-600" />
                 </div>
-            </header>
+            </div>
+            <div className="text-center">
+                <h2 className="text-xl font-bold mb-2">{profile.name}</h2>
+                <p className="text-gray-600 mb-2">{profile.university}</p>
+                <p className="text-gray-700 mb-4">{profile.major}</p>
+                <p className="text-gray-600 mb-4">{profile.bio}</p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                    {profile.interests.map((interest, index) => (
+                        <span
+                            key={index}
+                            className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                        >
+                            {interest}
+                        </span>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
 
-            <main className="max-w-7xl mx-auto p-4">
-                <div className="flex gap-8">
-                    <div className="flex-1 flex justify-center items-center">
-                        {currentIndex < profiles.length ? (
-                            <Profile profile={profiles[currentIndex]} onSwipe={handleSwipe} />
+    // Message Modal Component
+    const MessageModal = ({ onClose }) => (
+        <div className="fixed inset-0 modal-overlay bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="profile-enter bg-white rounded-lg p-6 w-full max-w-md">
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold">Messages</h2>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+                        <X size={24} />
+                    </button>
+                </div>
+                <div className="text-center text-gray-600 py-8">
+                    No messages yet
+                </div>
+            </div>
+        </div>
+    );
+
+    return (
+        <div className="min-h-screen bg-gray-100">
+            <div className="container mx-auto px-4 py-8">
+                <header className="flex justify-between items-center mb-8">
+                    <h1 className="text-3xl font-bold">GroupNet</h1>
+                    <button
+                        onClick={toggleModal}
+                        className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+                    >
+                        <MessageSquare size={20} />
+                        <span>Messages</span>
+                    </button>
+                </header>
+
+                <div className="grid md:grid-cols-3 gap-8">
+                    <div className="md:col-span-2">
+                        {currentProfile ? (
+                            <div className="profile-enter bg-white rounded-lg shadow-lg p-6">
+                                <ProfileCard profile={currentProfile} />
+                                <div className="flex justify-center space-x-4 mt-6">
+                                    <button
+                                        onClick={() => handleSwipe('left')}
+                                        className="swipe-button flex items-center space-x-2 px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg"
+                                    >
+                                        <X size={20} />
+                                        <span>Pass</span>
+                                    </button>
+                                    <button
+                                        onClick={() => handleSwipe('right')}
+                                        className="swipe-button flex items-center space-x-2 px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg"
+                                    >
+                                        <Check size={20} />
+                                        <span>Connect</span>
+                                    </button>
+                                </div>
+                            </div>
                         ) : (
-                            <Card className="p-6 text-center">
-                                <p>No more profiles to show!</p>
-                            </Card>
+                            <div className="profile-enter bg-white rounded-lg shadow-lg p-6 text-center">
+                                <p className="text-xl text-gray-600">No more profiles to show!</p>
+                            </div>
                         )}
                     </div>
 
-                    <div className="w-80">
-                        <Card className="p-4">
-                            <h2 className="text-xl font-bold mb-4">Your Matches ({matches.length})</h2>
+                    <div className="md:col-span-1">
+                        <div className="bg-white rounded-lg shadow-lg p-6">
+                            <h2 className="text-xl font-semibold mb-4">
+                                Your Matches ({matches.length})
+                            </h2>
                             <div className="space-y-4">
-                                {matches.map((match) => (
+                                {matches.map((match, index) => (
                                     <div
-                                        key={match.id}
-                                        className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
-                                        onClick={() => startConversationWithMatch(match)}
+                                        key={`${match.id}-${index}`}
+                                        className="match-item flex items-center space-x-4 p-4 bg-gray-50 rounded-lg cursor-pointer"
                                     >
-                                        <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                            <User className="h-5 w-5 text-blue-500" />
+                                        <div className="p-2 bg-blue-100 rounded-full">
+                                            <User size={24} className="text-blue-600" />
                                         </div>
                                         <div>
-                                            <p className="font-medium">{match.name}</p>
-                                            <p className="text-sm text-gray-500">{match.university}</p>
+                                            <h3 className="font-medium">{match.name}</h3>
+                                            <p className="text-sm text-gray-600">{match.university}</p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                        </Card>
+                        </div>
                     </div>
                 </div>
-            </main>
 
-            {isModalOpen && (
-                <MessageModal onClose={toggleModal} initialConversation={selectedConversation} />
-            )}
+                {isModalOpen && <MessageModal onClose={toggleModal} />}
+            </div>
         </div>
     );
 };

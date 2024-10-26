@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSpring, animated } from '@react-spring/web';
 import { useDrag } from 'react-use-gesture';
 import { User, X, Check } from 'lucide-react';
@@ -9,7 +9,10 @@ import Badge from './components/ui/badge';
 const Profile = ({ profile, onSwipe }) => {
     const [swiped, setSwiped] = useState(false);
 
-    // useSpring for managing animation properties
+    useEffect(() => {
+        setSwiped(false); // Reset swiped state when a new profile is loaded
+    }, [profile]);
+
     const [{ x, rotation, scale, opacity }, api] = useSpring(() => ({
         x: 0,
         rotation: 0,
@@ -18,25 +21,23 @@ const Profile = ({ profile, onSwipe }) => {
         config: { tension: 300, friction: 30 },
     }));
 
-    // Function to trigger swipe animation programmatically
     const triggerSwipe = (direction) => {
         api.start({
             x: direction === 'right' ? 1000 : -1000,
             opacity: 0,
             onRest: () => {
-                setSwiped(true); // Mark as swiped to hide from view
-                onSwipe(direction); // Call the parent swipe handler
+                setSwiped(true);
+                onSwipe(direction);
             },
         });
     };
 
-    // useDrag for handling swipe gestures
     const bind = useDrag(({ down, movement: [mx], velocity, direction: [xDir] }) => {
-        const trigger = velocity > 0.2; // Swipe velocity threshold
-        const dir = xDir > 0 ? 'right' : 'left'; // Swipe direction
+        const trigger = velocity > 0.2;
+        const dir = xDir > 0 ? 'right' : 'left';
 
         if (!down && trigger) {
-            triggerSwipe(dir); // Trigger swipe animation if velocity is high enough
+            triggerSwipe(dir);
         } else {
             api.start({
                 x: down ? mx : 0,
@@ -46,7 +47,7 @@ const Profile = ({ profile, onSwipe }) => {
         }
     });
 
-    if (swiped) return null; // Hide card if swiped
+    if (!profile || swiped) return null;
 
     return (
         <animated.div
@@ -65,43 +66,53 @@ const Profile = ({ profile, onSwipe }) => {
                         <User className="h-8 w-8 text-blue-500" />
                     </div>
                     <div>
-                        <h3 className="text-xl font-bold">{profile.name}</h3>
-                        <p className="text-sm text-gray-500">{profile.university}</p>
+                        <h3 className="text-xl font-bold">{profile.name || "Name not available"}</h3>
+                        <p className="text-sm text-gray-500">{profile.university || "University not specified"}</p>
                     </div>
                 </div>
 
-                <div className="space-y-4">
-                    <div>
-                        <h4 className="font-semibold mb-2">Study Interests</h4>
-                        <div className="flex flex-wrap gap-2">
-                            {profile.subjects.map((subject, index) => (
-                                <Badge key={index} variant="secondary">{subject}</Badge>
-                            ))}
-                        </div>
-                    </div>
+                <div className="mb-4">
+                    <h4 className="font-semibold mb-2">Bio</h4>
+                    <p className="text-sm text-gray-700">{profile.bio || "No bio available"}</p>
+                </div>
 
-                    <div>
-                        <h4 className="font-semibold mb-2">Current Courses</h4>
-                        <ul className="list-disc list-inside text-sm">
-                            {profile.courses.map((course, index) => (
+                <div className="mb-4">
+                    <h4 className="font-semibold mb-2">Study Interests</h4>
+                    <div className="flex flex-wrap gap-2">
+                        {profile.studyInterests && profile.studyInterests.length > 0 ? (
+                            profile.studyInterests.map((interest, index) => (
+                                <Badge key={index} variant="secondary">{interest}</Badge>
+                            ))
+                        ) : (
+                            <p className="text-sm text-gray-500">No interests listed</p>
+                        )}
+                    </div>
+                </div>
+
+                <div className="mb-4">
+                    <h4 className="font-semibold mb-2">Current Courses</h4>
+                    <ul className="list-disc list-inside text-sm text-gray-700">
+                        {profile.currentCourses && profile.currentCourses.length > 0 ? (
+                            profile.currentCourses.map((course, index) => (
                                 <li key={index}>{course}</li>
-                            ))}
-                        </ul>
-                    </div>
+                            ))
+                        ) : (
+                            <p className="text-sm text-gray-500">No courses listed</p>
+                        )}
+                    </ul>
+                </div>
 
-                    <div>
-                        <h4 className="font-semibold mb-2">Study Style</h4>
-                        <p className="text-sm">{profile.studyStyle}</p>
-                    </div>
+                <div className="mb-4">
+                    <h4 className="font-semibold mb-2">Study Style</h4>
+                    <p className="text-sm text-gray-700">{profile.studyStyle || "Not specified"}</p>
+                </div>
 
-                    <div>
-                        <h4 className="font-semibold mb-2">Availability</h4>
-                        <p className="text-sm">{profile.availability}</p>
-                    </div>
+                <div className="mb-4">
+                    <h4 className="font-semibold mb-2">Availability</h4>
+                    <p className="text-sm text-gray-700">{profile.availability || "Not specified"}</p>
                 </div>
             </CardContent>
 
-            {/* Permanent Like and Dislike Buttons */}
             <div className="flex justify-around p-4 border-t border-gray-200">
                 <Button
                     variant="outline"
