@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import ttk
 
 # MongoDB connection URI
-URI = 'mongodb+srv://sapai1:sapai1@profilecluster.c2zhh.mongodb.net/?retryWrites=true&w=majority&appName=profileCluster'
+URI = 'INSERT KEY HERE'
 
 # Connect to MongoDB
 client = MongoClient(URI, server_api=ServerApi('1'))
