@@ -1,0 +1,43 @@
+/* Base styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom classes */
+.profile-enter {
+  animation: fade-in 0.3s ease-out;
+}
+
+.modal-overlay {
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.swipe-button {
+  transition: transform 0.2s ease;
+}
+
+.swipe-button:hover {
+  transform: scale(1.05);
+}
+
+.match-item {
+  transition: all 0.2s ease;
+}
+
+.match-item:hover {
+  transform: translateX(5px);
+  background-color: #f3f4f6;
+}
