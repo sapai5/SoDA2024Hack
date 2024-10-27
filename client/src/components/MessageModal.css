@@ -17,7 +17,8 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    width: 700px;
+    width: 90%;
+    max-width: 900px;
     height: 80%;
 }
 
@@ -47,17 +48,19 @@
 }
 
 .conversation-list {
-    width: 250px;
+    width: 300px;
     border-right: 1px solid #f0f0f0;
     overflow-y: auto;
+    padding: 10px;
 }
 
 .conversation-item {
     display: flex;
     align-items: center;
-    padding: 12px 16px;
+    padding: 10px;
     cursor: pointer;
     transition: background 0.2s;
+    position: relative;
 }
 
 .conversation-item.active, .conversation-item:hover {
@@ -65,8 +68,8 @@
 }
 
 .avatar {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     background: #0073e6;
     color: #ffffff;
     display: flex;
@@ -75,6 +78,7 @@
     font-weight: 600;
     border-radius: 50%;
     margin-right: 12px;
+    font-size: 16px;
 }
 
 .conversation-info {
@@ -82,28 +86,34 @@
 }
 
 .conversation-name {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
 }
 
 .conversation-last-message {
-    font-size: 14px;
+    font-size: 12px;
     color: #666;
 }
 
-.conversation-time {
-    font-size: 12px;
-    color: #999;
+.status-dot.unread {
+    position: absolute;
+    right: 8px;
+    top: 16px;
+    width: 8px;
+    height: 8px;
+    background-color: #0073e6;
+    border-radius: 50%;
 }
 
 .chat-window {
     flex: 1;
     display: flex;
     flex-direction: column;
+    padding: 10px;
 }
 
 .chat-header {
-    padding: 16px;
+    padding: 10px;
     border-bottom: 1px solid #f0f0f0;
     font-weight: 600;
     font-size: 16px;
@@ -111,13 +121,13 @@
 
 .chat-messages {
     flex: 1;
-    padding: 16px;
+    padding: 10px;
     overflow-y: auto;
 }
 
 .message {
     max-width: 75%;
-    padding: 10px 16px;
+    padding: 8px 12px;
     margin-bottom: 8px;
     border-radius: 16px;
     position: relative;
@@ -136,7 +146,7 @@
 }
 
 .message-time {
-    font-size: 12px;
+    font-size: 10px;
     color: #999;
     margin-top: 4px;
     display: block;
@@ -145,36 +155,12 @@
 
 .chat-input {
     display: flex;
-    padding: 16px;
+    padding: 10px;
     border-top: 1px solid #f0f0f0;
 }
 
 .message-input {
     flex: 1;
-    padding: 10px;
+    padding: 8px;
     border: 1px solid #ddd;
-    border-radius: 20px;
-    outline: none;
-}
-
-.send-button {
-    background: #0073e6;
-    color: #ffffff;
-    padding: 0 16px;
-    border: none;
-    border-radius: 20px;
-    margin-left: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.2s;
-}
-
-.send-button:hover {
-    background: #005bb5;
-}
-
-.select-conversation {
-    padding: 16px;
-    color: #999;
-    text-align: center;
 }

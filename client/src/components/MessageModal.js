@@ -1,24 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { db } from './firebaseConfig';
-import { collection, doc, addDoc, serverTimestamp, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { collection, doc, addDoc, serverTimestamp, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
 import { X } from 'lucide-react';
 import './MessageModal.css';
+import { auth, db } from './firebaseConfig';
 
-const MessageModal = ({ onClose }) => {
+const MessageModal = ({ onClose, matches }) => {
     const [selectedConversation, setSelectedConversation] = useState(null);
     const [newMessage, setNewMessage] = useState("");
-    const [conversations, setConversations] = useState([]);
     const [messages, setMessages] = useState([]);
 
-    // Fetch conversations from Firestore
-    useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, 'conversations'), snapshot => {
-            setConversations(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-        });
-        return () => unsubscribe();
-    }, []);
-
-    // Fetch messages for the selected conversation in real-time
+    // Fetch messages for the selected match in real-time
     useEffect(() => {
         if (selectedConversation) {
             const q = query(
@@ -32,20 +23,22 @@ const MessageModal = ({ onClose }) => {
         }
     }, [selectedConversation]);
 
-    // Select a sample user conversation by default
-    useEffect(() => {
-        if (conversations.length > 0 && !selectedConversation) {
-            setSelectedConversation(conversations[0]); // Select the first conversation as default
-        }
-    }, [conversations, selectedConversation]);
-
     const handleSendMessage = async () => {
         if (newMessage.trim() && selectedConversation) {
-            await addDoc(collection(db, 'conversations', selectedConversation.id, 'messages'), {
+            const messageData = {
                 text: newMessage,
-                sender: "self", // Mark this message as sent by the user
+                sender: auth.currentUser.uid,
+                timestamp: serverTimestamp(),
+            };
+
+            await addDoc(collection(db, 'conversations', selectedConversation.id, 'messages'), messageData);
+
+            const conversationRef = doc(db, 'conversations', selectedConversation.id);
+            await updateDoc(conversationRef, {
+                lastMessage: newMessage,
                 timestamp: serverTimestamp(),
             });
+
             setNewMessage("");
         }
     };
@@ -60,22 +53,27 @@ const MessageModal = ({ onClose }) => {
                     </button>
                 </div>
                 <div className="modal-body">
+                    {/* Left Panel: Matches List */}
                     <div className="conversation-list">
-                        {conversations.map((conversation) => (
+                        {matches.map((match) => (
                             <div
-                                key={conversation.id}
-                                className={`conversation-item ${selectedConversation?.id === conversation.id ? "active" : ""}`}
-                                onClick={() => setSelectedConversation(conversation)}
+                                key={match.id}
+                                className={`conversation-item ${selectedConversation?.id === match.id ? "active" : ""}`}
+                                onClick={() => setSelectedConversation(match)}
                             >
-                                <div className="avatar">{conversation.name[0]}</div>
-                                <div className="conversation-info">
-                                    <h4 className="conversation-name">{conversation.name}</h4>
-                                    <p className="conversation-last-message">{conversation.lastMessage}</p>
+                                <div className="avatar">
+                                    {match.name[0]}
                                 </div>
-                                <span className="conversation-time">{conversation.time}</span>
+                                <div className="conversation-info">
+                                    <h4 className="conversation-name">{match.name}</h4>
+                                    <p className="conversation-last-message">{match.bio || "No bio available"}</p>
+                                </div>
+                                <span className="status-dot"></span>
                             </div>
                         ))}
                     </div>
+
+                    {/* Right Panel: Chat Window */}
                     <div className="chat-window">
                         {selectedConversation ? (
                             <>
@@ -84,7 +82,7 @@ const MessageModal = ({ onClose }) => {
                                 </div>
                                 <div className="chat-messages">
                                     {messages.map((msg, index) => (
-                                        <div key={index} className={`message ${msg.sender === 'self' ? "sent" : "received"}`}>
+                                        <div key={index} className={`message ${msg.sender === auth.currentUser.uid ? "sent" : "received"}`}>
                                             <p>{msg.text}</p>
                                             <span className="message-time">
                                                 {msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ""}

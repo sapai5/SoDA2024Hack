@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 // CreateAccount.jsx
+=======
+>>>>>>> 5c7078512c2557b601ad93d5d0f4d3e1b788d7ba
 import React, { useState } from 'react';
 
 const CreateAccount = ({ onSignUpSuccess }) => {
