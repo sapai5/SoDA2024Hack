@@ -26,11 +26,11 @@ def find_matches(user_profile):
     """
     Find matches based on user profile using the existing matching logic
     """
-    # Fetch Profiles
+    # Fetch Profiles with the same course needed help
     course_needed = user_profile["course_help"]
     profiles = list(collection.find({"Course_Need_Help": course_needed}))
 
-    # Add user's profile temporarily
+    # Add user's profile temporarily for feature processing
     profiles.append({
         'Year': user_profile['year'],
         'Courses_Taken': user_profile['courses_taken'],
