@@ -11,13 +11,13 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:500
 const App = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [currentUser, setCurrentUser] = useState({
-        name: 'Brandon Lim',
-        year: 'Freshman',
-        major: 'Computer Science',
-        sex: 'm/f',
-        courses_taken: 'courses taken',
-        course_help: 'course help',
-        about_me: 'hi bio',
+        name: 'ex. Emily Smith',
+        year: 'ex. Freshman',
+        major: 'ex. Computer Science',
+        sex: 'ex. Female',
+        courses_taken: 'ex. MAT 210',
+        course_help: 'ex. ECN 221',
+        about_me: 'ex. I like running and soccer',
         optIn: true,
     });
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -39,12 +39,25 @@ const App = () => {
 
     const handleSaveProfile = async (updatedProfile) => {
         try {
+            // First save the profile
             const response = await axios.post(`${API_BASE_URL}/api/profile`, updatedProfile);
 
             if (response.data.success) {
                 setSaveStatus('Profile saved successfully!');
                 setCurrentUser(updatedProfile);
-                await fetchMatches();
+
+                // After saving, fetch matches based on the updated profile
+                const matchResponse = await axios.post(`${API_BASE_URL}/api/find-matches`, updatedProfile);
+                const matchData = matchResponse.data;
+
+                if (Array.isArray(matchData)) {
+                    setProfiles(matchData);
+                    setMatches([]); // Reset matches
+                    if (matchData.length > 0) {
+                        setCurrentProfile(matchData[0]);
+                        setCurrentIndex(0);
+                    }
+                }
 
                 setTimeout(() => {
                     setSaveStatus('');
@@ -57,21 +70,13 @@ const App = () => {
         }
     };
 
-    // New optimized fetchMatches function
+    // Modified fetchMatches to initialize empty states
     const fetchMatches = async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/matches`);
-            const matchData = response.data;
-
-            if (matchData && Array.isArray(matchData)) {
-                // Set only to profiles, start with empty matches
-                setProfiles(matchData);
-                setMatches([]); // Start with empty matches
-
-                if (matchData.length > 0) {
-                    setCurrentProfile(matchData[0]);
-                }
-            }
+            setProfiles([]);
+            setMatches([]);
+            setCurrentProfile(null);
+            setCurrentIndex(0);
         } catch (error) {
             console.error('Error fetching matches:', error);
         }
@@ -79,7 +84,11 @@ const App = () => {
 
     useEffect(() => {
         if (isAuthenticated) {
-            fetchMatches();
+            // Initialize empty states
+            setProfiles([]);
+            setMatches([]);
+            setCurrentProfile(null);
+            setCurrentIndex(0);
         }
     }, [isAuthenticated]);
 
@@ -320,7 +329,7 @@ const StudyApp = ({
                         </div>
                     ) : (
                         <div className="profile-enter bg-white rounded-lg shadow-lg p-6 text-center">
-                            <p className="text-xl text-gray-600">No more profiles available. Try updating your profile!</p>
+                            <p className="text-xl text-gray-600">No profiles available. Try updating your profile!</p>
                         </div>
                     )}
                 </div>

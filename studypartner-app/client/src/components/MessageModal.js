@@ -12,8 +12,9 @@ const MessageModal = ({ onClose, userData }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const messagesEndRef = useRef(null);
+    const messageListenerRef = useRef(null); // Add ref for message listener
 
-    // Fetch matches when component mounts
+    // Fetch matches only once when component mounts
     useEffect(() => {
         const fetchMatches = async () => {
             try {
@@ -35,79 +36,75 @@ const MessageModal = ({ onClose, userData }) => {
         };
 
         fetchMatches();
-    }, [userData]);
+    }, []); // Remove userData from dependencies
 
-    // Listen for messages in selected conversation
+    // Optimize message listener setup
     useEffect(() => {
-        let unsubscribe = () => {};
+        if (!selectedConversation) return;
 
-        if (selectedConversation) {
-            const q = query(
-                collection(db, 'conversations', selectedConversation.id, 'messages'),
-                orderBy('timestamp', 'asc')
-            );
-
-            unsubscribe = onSnapshot(q, snapshot => {
-                const newMessages = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                setMessages(newMessages);
-                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-            });
+        // Clean up previous listener
+        if (messageListenerRef.current) {
+            messageListenerRef.current();
         }
 
-        return () => unsubscribe();
-    }, [selectedConversation?.id]);
+        const q = query(
+            collection(db, 'conversations', selectedConversation.id, 'messages'),
+            orderBy('timestamp', 'asc')
+        );
+
+        messageListenerRef.current = onSnapshot(q, snapshot => {
+            const newMessages = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setMessages(newMessages);
+        });
+
+        return () => {
+            if (messageListenerRef.current) {
+                messageListenerRef.current();
+            }
+        };
+    }, [selectedConversation?.id]); // Only depend on conversation ID
+
+    // Scroll to bottom when messages change
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
-        if (newMessage.trim() && selectedConversation) {
-            const messageData = {
-                text: newMessage,
-                sender: auth.currentUser?.uid || "unknown",
+        const trimmedMessage = newMessage.trim();
+        if (!trimmedMessage || !selectedConversation) return;
+
+        const messageData = {
+            text: trimmedMessage,
+            sender: auth.currentUser?.uid || "unknown",
+            timestamp: serverTimestamp(),
+            senderName: userData.name
+        };
+
+        try {
+            setNewMessage(""); // Clear input immediately
+
+            // Add message to Firestore
+            await addDoc(
+                collection(db, 'conversations', selectedConversation.id, 'messages'),
+                messageData
+            );
+
+            // Update conversation metadata
+            const conversationRef = doc(db, 'conversations', selectedConversation.id);
+            await updateDoc(conversationRef, {
+                lastMessage: trimmedMessage,
                 timestamp: serverTimestamp(),
-                senderName: userData.name // Add sender's name
-            };
-
-            try {
-                // Optimistic UI update
-                setMessages(prev => [...prev, {
-                    ...messageData,
-                    id: Date.now(),
-                    timestamp: new Date()
-                }]);
-                setNewMessage("");
-
-                // Add message to Firestore
-                await addDoc(
-                    collection(db, 'conversations', selectedConversation.id, 'messages'),
-                    messageData
-                );
-
-                // Update conversation metadata
-                const conversationRef = doc(db, 'conversations', selectedConversation.id);
-                await updateDoc(conversationRef, {
-                    lastMessage: newMessage,
-                    timestamp: serverTimestamp(),
-                    lastSender: userData.name
-                });
-            } catch (error) {
-                console.error('Error sending message:', error);
-                setError('Failed to send message');
-            }
+                lastSender: userData.name
+            });
+        } catch (error) {
+            console.error('Error sending message:', error);
+            setError('Failed to send message');
         }
     };
-
-    if (loading) {
-        return <div className="modal-overlay">
-            <div className="modal-content">
-                <div className="flex items-center justify-center h-64">
-                    <p>Loading matches...</p>
-                </div>
-            </div>
-        </div>;
-    }
 
     return (
         <div className="modal-overlay">
