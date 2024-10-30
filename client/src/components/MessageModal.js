@@ -9,7 +9,6 @@ const MessageModal = ({ onClose, matches }) => {
     const [newMessage, setNewMessage] = useState("");
     const [messages, setMessages] = useState([]);
 
-    // Fetch messages for the selected match in real-time
     useEffect(() => {
         if (selectedConversation) {
             const q = query(
@@ -27,7 +26,7 @@ const MessageModal = ({ onClose, matches }) => {
         if (newMessage.trim() && selectedConversation) {
             const messageData = {
                 text: newMessage,
-                sender: auth.currentUser.uid,
+                sender: auth.currentUser ? auth.currentUser.uid : "unknown",
                 timestamp: serverTimestamp(),
             };
 
@@ -49,61 +48,32 @@ const MessageModal = ({ onClose, matches }) => {
                 <div className="modal-header">
                     <h2 className="modal-title">Messages</h2>
                     <button onClick={onClose} className="close-button">
-                        <X className="icon" />
+                        <X className="icon"/>
                     </button>
                 </div>
                 <div className="modal-body">
-                    {/* Left Panel: Matches List */}
-                    <div className="conversation-list">
-                        {matches.map((match) => (
-                            <div
-                                key={match.id}
-                                className={`conversation-item ${selectedConversation?.id === match.id ? "active" : ""}`}
-                                onClick={() => setSelectedConversation(match)}
-                            >
-                                <div className="avatar">
-                                    {match.name[0]}
+                    <div className="conversations-container">
+                        <div className="conversation-list">
+                            {matches.map((match) => (
+                                <div
+                                    key={match.id}
+                                    className={`conversation-item ${selectedConversation?.id === match.id ? "active" : ""}`}
+                                    onClick={() => setSelectedConversation(match)}
+                                >
+                                    <div className="avatar">
+                                        {match.name[0]}
+                                    </div>
+                                    <div className="conversation-info">
+                                        <h4 className="conversation-name">{match.name}</h4>
+                                        <p className="conversation-last-message">{match.bio || "No bio available"}</p>
+                                    </div>
                                 </div>
-                                <div className="conversation-info">
-                                    <h4 className="conversation-name">{match.name}</h4>
-                                    <p className="conversation-last-message">{match.bio || "No bio available"}</p>
-                                </div>
-                                <span className="status-dot"></span>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
 
-                    {/* Right Panel: Chat Window */}
                     <div className="chat-window">
-                        {selectedConversation ? (
-                            <>
-                                <div className="chat-header">
-                                    <h3>{selectedConversation.name}</h3>
-                                </div>
-                                <div className="chat-messages">
-                                    {messages.map((msg, index) => (
-                                        <div key={index} className={`message ${msg.sender === auth.currentUser.uid ? "sent" : "received"}`}>
-                                            <p>{msg.text}</p>
-                                            <span className="message-time">
-                                                {msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ""}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="chat-input">
-                                    <input
-                                        type="text"
-                                        placeholder="Type a message..."
-                                        value={newMessage}
-                                        onChange={(e) => setNewMessage(e.target.value)}
-                                        className="message-input"
-                                    />
-                                    <button onClick={handleSendMessage} className="send-button">Send</button>
-                                </div>
-                            </>
-                        ) : (
-                            <p className="select-conversation">Select a conversation to start chatting</p>
-                        )}
+                        {/* Add chat window elements here */}
                     </div>
                 </div>
             </div>

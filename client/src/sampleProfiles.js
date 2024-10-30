@@ -1,94 +1,124 @@
 const sampleProfiles = [
     {
-        id: "1",
-        name: "Alice Johnson",
-        university: "Harvard University",
-        studyInterests: ["Physics", "Engineering", "Robotics"],
-        currentCourses: ["6.001: Programming", "8.01: Physics I"],
-        studyStyle: "Mix of individual work and group problem-solving",
-        availability: "Flexible schedule, prefers mornings",
-    },
-    {
-        id: "2",
-        name: "Bob Smith",
+        id: 1,
+        name: "Alex Johnson",
         university: "Stanford University",
-        studyInterests: ["Quantum Mechanics", "Astrophysics", "Mathematics"],
-        currentCourses: ["PHYSICS 101: Quantum Theory", "MATH 204: Linear Algebra"],
-        studyStyle: "Prefers deep individual research followed by group discussions",
-        availability: "Available weekends and evenings",
+        major: "Computer Science",
+        interests: ["Machine Learning", "Web Development", "Algorithms"],
+        bio: "Looking for study partners in advanced algorithms and ML projects."
     },
     {
-        id: "3",
-        name: "Clara Lee",
+        id: 2,
+        name: "Sarah Chen",
         university: "MIT",
-        studyInterests: ["Machine Learning", "Data Science", "Artificial Intelligence"],
-        currentCourses: ["6.036: Introduction to Machine Learning", "6.041: Probabilistic Systems Analysis"],
-        studyStyle: "Enjoys collaborative projects with lots of brainstorming",
-        availability: "Available weekday afternoons and evenings",
+        major: "Physics",
+        interests: ["Quantum Mechanics", "Mathematics", "Programming"],
+        bio: "Passionate about quantum computing and theoretical physics."
     },
     {
-        id: "4",
-        name: "Daniel Kim",
-        university: "UC Berkeley",
-        studyInterests: ["Economics", "Finance", "Game Theory"],
-        currentCourses: ["ECON 101: Macroeconomics", "FINANCE 201: Investment Analysis"],
-        studyStyle: "Focuses on theoretical discussions with applied case studies",
-        availability: "Prefers afternoons and weekends",
+        id: 3,
+        name: "Michael Brown",
+        university: "Berkeley",
+        major: "Data Science",
+        interests: ["Big Data", "Statistics", "Python"],
+        bio: "Seeking collaborators for data science projects and study groups."
     },
     {
-        id: "5",
-        name: "Evelyn Green",
-        university: "University of Oxford",
-        studyInterests: ["Mathematics", "Abstract Algebra", "Topology"],
-        currentCourses: ["MATH 301: Abstract Algebra", "MATH 302: Topology"],
-        studyStyle: "Independent problem-solving followed by peer review",
-        availability: "Flexible, prefers early mornings or late evenings",
+        id: 4,
+        name: "Emily Davis",
+        university: "Harvard University",
+        major: "Biology",
+        interests: ["Genetics", "Ecology", "Bioinformatics"],
+        bio: "Interested in working with others on genetic research and bioinformatics projects."
     },
     {
-        id: "6",
-        name: "Michael Tan",
-        university: "Princeton University",
-        studyInterests: ["Chemistry", "Biochemistry", "Genetics"],
-        currentCourses: ["CHEM 210: Organic Chemistry", "BIO 201: Genetics"],
-        studyStyle: "Hands-on experiments with group feedback",
-        availability: "Weekdays only, prefers afternoons",
-    },
-    {
-        id: "7",
-        name: "Sophia Patel",
+        id: 5,
+        name: "Daniel Wilson",
         university: "University of Cambridge",
-        studyInterests: ["Philosophy", "Ethics", "Logic"],
-        currentCourses: ["PHIL 101: Ethics", "PHIL 203: Logic and Reasoning"],
-        studyStyle: "Enjoys group discussions and debates on philosophical topics",
-        availability: "Available weekends and evenings",
+        major: "Mathematics",
+        interests: ["Abstract Algebra", "Topology", "Number Theory"],
+        bio: "Looking for a group to study complex mathematical theories and proofs."
     },
     {
-        id: "8",
-        name: "Liam Wang",
+        id: 6,
+        name: "Sophie Lee",
+        university: "University of Oxford",
+        major: "Philosophy",
+        interests: ["Ethics", "Logic", "Political Theory"],
+        bio: "Love discussing philosophy and political theory. Seeking intellectual discussions."
+    },
+    {
+        id: 7,
+        name: "Jack Thompson",
+        university: "Princeton University",
+        major: "Engineering",
+        interests: ["Robotics", "AI", "Mechanical Engineering"],
+        bio: "Looking for teammates for robotics competitions and AI integration projects."
+    },
+    {
+        id: 8,
+        name: "Olivia White",
         university: "Caltech",
-        studyInterests: ["Computer Science", "Algorithms", "Data Structures"],
-        currentCourses: ["CS 101: Data Structures", "CS 203: Algorithms"],
-        studyStyle: "Focuses on hands-on coding and pair programming",
-        availability: "Weekends only, prefers afternoons",
+        major: "Astronomy",
+        interests: ["Astrophysics", "Planetary Science", "Space Exploration"],
+        bio: "Passionate about the cosmos and exploring extraterrestrial life."
     },
     {
-        id: "9",
-        name: "Emma Thompson",
+        id: 9,
+        name: "Lucas Martinez",
         university: "Columbia University",
-        studyInterests: ["Sociology", "Psychology", "Human Behavior"],
-        currentCourses: ["SOC 101: Introduction to Sociology", "PSYCH 201: Cognitive Psychology"],
-        studyStyle: "Likes open-ended discussions with peer feedback",
-        availability: "Flexible, available most evenings",
+        major: "Environmental Science",
+        interests: ["Climate Change", "Ecology", "Sustainability"],
+        bio: "Eager to collaborate on projects related to climate change and conservation."
     },
     {
-        id: "10",
-        name: "Noah Wilson",
+        id: 10,
+        name: "Emma Garcia",
         university: "University of Toronto",
-        studyInterests: ["Environmental Science", "Ecology", "Climate Change"],
-        currentCourses: ["ENV 101: Introduction to Ecology", "CLIM 203: Climate Science"],
-        studyStyle: "Enjoys field research with data analysis and group presentations",
-        availability: "Available weekdays and weekends",
+        major: "Psychology",
+        interests: ["Neuroscience", "Cognitive Science", "Behavioral Studies"],
+        bio: "Excited about exploring the human mind. Looking for partners for neuropsychology projects."
     },
+    {
+        id: 11,
+        name: "Henry Green",
+        university: "University of Melbourne",
+        major: "Economics",
+        interests: ["Finance", "Game Theory", "Macro Economics"],
+        bio: "Seeking a study group focused on finance, game theory, and economic modeling."
+    },
+    {
+        id: 12,
+        name: "Isabella Thomas",
+        university: "National University of Singapore",
+        major: "Chemistry",
+        interests: ["Organic Chemistry", "Chemical Engineering", "Materials Science"],
+        bio: "Looking for lab partners to explore advanced organic chemistry topics."
+    },
+    {
+        id: 13,
+        name: "James Lee",
+        university: "ETH Zurich",
+        major: "Physics",
+        interests: ["Particle Physics", "Quantum Field Theory", "Mathematical Physics"],
+        bio: "Passionate about fundamental particles and the universe. Open to deep discussions."
+    },
+    {
+        id: 14,
+        name: "Grace Kim",
+        university: "University of Tokyo",
+        major: "Linguistics",
+        interests: ["Syntax", "Phonetics", "Language Evolution"],
+        bio: "Exploring language evolution and structure. Looking for study partners in linguistics."
+    },
+    {
+        id: 15,
+        name: "Ethan Nguyen",
+        university: "University of Toronto",
+        major: "Computer Engineering",
+        interests: ["Embedded Systems", "IoT", "Circuit Design"],
+        bio: "Excited about IoT and microcontroller projects. Seeking collaborators."
+    }
 ];
 
 export default sampleProfiles;
